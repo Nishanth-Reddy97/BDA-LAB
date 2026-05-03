@@ -1,0 +1,340 @@
+test> use student
+switched to db student
+student> db.students.insertMany([
+...   { rollNo: 101, name: "Anu", dept: "CSE", marks: 85, city: "Chennai" },
+...   { rollNo: 102, name: "Rahul", dept: "ECE", marks: 78, city: "Hyderabad" },
+...   { rollNo: 103, name: "Priya", dept: "ISE", marks: 92, city: "Bangalore" },
+...   { rollNo: 104, name: "Kiran", dept: "CSE", marks: 35, city: "Delhi" },
+...   { rollNo: 105, name: "Sneha", dept: "ECE", marks: 60, city: "Mumbai" }
+... ])
+...
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('69928dfb4871d65f791e2621'),
+    '1': ObjectId('69928dfb4871d65f791e2622'),
+    '2': ObjectId('69928dfb4871d65f791e2623'),
+    '3': ObjectId('69928dfb4871d65f791e2624'),
+    '4': ObjectId('69928dfb4871d65f791e2625')
+  }
+}
+student> db.students.updateOne({rollNo:101},{$set:{marks:90}});
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+student> db.students.deleteOne({rollNo:105});
+{ acknowledged: true, deletedCount: 1 }
+student> db.students.find();
+[
+  {
+    _id: ObjectId('69928dfb4871d65f791e2621'),
+    rollNo: 101,
+    name: 'Anu',
+    dept: 'CSE',
+    marks: 90,
+    city: 'Chennai'
+  },
+  {
+    _id: ObjectId('69928dfb4871d65f791e2622'),
+    rollNo: 102,
+    name: 'Rahul',
+    dept: 'ECE',
+    marks: 78,
+    city: 'Hyderabad'
+  },
+  {
+    _id: ObjectId('69928dfb4871d65f791e2623'),
+    rollNo: 103,
+    name: 'Priya',
+    dept: 'ISE',
+    marks: 92,
+    city: 'Bangalore'
+  },
+  {
+    _id: ObjectId('69928dfb4871d65f791e2624'),
+    rollNo: 104,
+    name: 'Kiran',
+    dept: 'CSE',
+    marks: 35,
+    city: 'Delhi'
+  }
+]
+student> db.students.deleteMany({marks:{$lt:40}});
+{ acknowledged: true, deletedCount: 1 }
+student> db.students.find();
+[
+  {
+    _id: ObjectId('69928dfb4871d65f791e2621'),
+    rollNo: 101,
+    name: 'Anu',
+    dept: 'CSE',
+    marks: 90,
+    city: 'Chennai'
+  },
+  {
+    _id: ObjectId('69928dfb4871d65f791e2622'),
+    rollNo: 102,
+    name: 'Rahul',
+    dept: 'ECE',
+    marks: 78,
+    city: 'Hyderabad'
+  },
+  {
+    _id: ObjectId('69928dfb4871d65f791e2623'),
+    rollNo: 103,
+    name: 'Priya',
+    dept: 'ISE',
+    marks: 92,
+    city: 'Bangalore'
+  }
+]
+student> db.students.find({dept:'CSE'},{marks:{$gt:80}});
+MongoServerError[Location16020]: Expression $gt takes exactly 2 arguments. 1 were passed in.
+student> db.students.find({dept:'CSE',marks:{$gt:80}});
+[
+  {
+    _id: ObjectId('69928dfb4871d65f791e2621'),
+    rollNo: 101,
+    name: 'Anu',
+    dept: 'CSE',
+    marks: 90,
+    city: 'Chennai'
+  }
+]
+student> db.students.find({dept:{$in:['CSE','ECE']}});
+[
+  {
+    _id: ObjectId('69928dfb4871d65f791e2621'),
+    rollNo: 101,
+    name: 'Anu',
+    dept: 'CSE',
+    marks: 90,
+    city: 'Chennai'
+  },
+  {
+    _id: ObjectId('69928dfb4871d65f791e2622'),
+    rollNo: 102,
+    name: 'Rahul',
+    dept: 'ECE',
+    marks: 78,
+    city: 'Hyderabad'
+  }
+]
+student> db.students.find({marks:{$gt:60, $lt:90}},{name:1, marks:1});
+[
+  {
+    _id: ObjectId('69928dfb4871d65f791e2622'),
+    name: 'Rahul',
+    marks: 78
+  }
+]
+student> db.students.insertOne({rollNo:106,name:'Ravi',dept:'CSE',marks:70,city:null});
+{
+  acknowledged: true,
+  insertedId: ObjectId('6992914f4871d65f791e2626')
+}
+student> db.students.find({city:null})
+[
+  {
+    _id: ObjectId('6992914f4871d65f791e2626'),
+    rollNo: 106,
+    name: 'Ravi',
+    dept: 'CSE',
+    marks: 70,
+    city: null
+  }
+]
+student> db.students.update({city:null}, {$set:{city:'Unknown'}})
+DeprecationWarning: Collection.update() is deprecated. Use updateOne, updateMany, or bulkWrite.
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+student> db.students.countDocuments()
+4
+student> db.students.countDocuments({
+...   dept: "ISE"
+... })
+...
+1
+student> db.students.countDocuments({
+...   marks: { $gt: 75 }
+... })
+...
+3
+student> db.students.find().sort({ marks: -1 })
+[
+  {
+    _id: ObjectId('69928dfb4871d65f791e2623'),
+    rollNo: 103,
+    name: 'Priya',
+    dept: 'ISE',
+    marks: 92,
+    city: 'Bangalore'
+  },
+  {
+    _id: ObjectId('69928dfb4871d65f791e2621'),
+    rollNo: 101,
+    name: 'Anu',
+    dept: 'CSE',
+    marks: 90,
+    city: 'Chennai'
+  },
+  {
+    _id: ObjectId('69928dfb4871d65f791e2622'),
+    rollNo: 102,
+    name: 'Rahul',
+    dept: 'ECE',
+    marks: 78,
+    city: 'Hyderabad'
+  },
+  {
+    _id: ObjectId('6992914f4871d65f791e2626'),
+    rollNo: 106,
+    name: 'Ravi',
+    dept: 'CSE',
+    marks: 70,
+    city: 'Unknown'
+  }
+]
+student> db.students.find()
+... .sort({ marks: -1 })
+... .limit(3)
+...
+[
+  {
+    _id: ObjectId('69928dfb4871d65f791e2623'),
+    rollNo: 103,
+    name: 'Priya',
+    dept: 'ISE',
+    marks: 92,
+    city: 'Bangalore'
+  },
+  {
+    _id: ObjectId('69928dfb4871d65f791e2621'),
+    rollNo: 101,
+    name: 'Anu',
+    dept: 'CSE',
+    marks: 90,
+    city: 'Chennai'
+  },
+  {
+    _id: ObjectId('69928dfb4871d65f791e2622'),
+    rollNo: 102,
+    name: 'Rahul',
+    dept: 'ECE',
+    marks: 78,
+    city: 'Hyderabad'
+  }
+]
+student> db.students.find()
+... .skip(2)
+... .limit(3)
+...
+[
+  {
+    _id: ObjectId('69928dfb4871d65f791e2623'),
+    rollNo: 103,
+    name: 'Priya',
+    dept: 'ISE',
+    marks: 92,
+    city: 'Bangalore'
+  },
+  {
+    _id: ObjectId('6992914f4871d65f791e2626'),
+    rollNo: 106,
+    name: 'Ravi',
+    dept: 'CSE',
+    marks: 70,
+    city: 'Unknown'
+  }
+]
+student> db.students.aggregate()
+[
+  {
+    _id: ObjectId('69928dfb4871d65f791e2621'),
+    rollNo: 101,
+    name: 'Anu',
+    dept: 'CSE',
+    marks: 90,
+    city: 'Chennai'
+  },
+  {
+    _id: ObjectId('69928dfb4871d65f791e2622'),
+    rollNo: 102,
+    name: 'Rahul',
+    dept: 'ECE',
+    marks: 78,
+    city: 'Hyderabad'
+  },
+  {
+    _id: ObjectId('69928dfb4871d65f791e2623'),
+    rollNo: 103,
+    name: 'Priya',
+    dept: 'ISE',
+    marks: 92,
+    city: 'Bangalore'
+  },
+  {
+    _id: ObjectId('6992914f4871d65f791e2626'),
+    rollNo: 106,
+    name: 'Ravi',
+    dept: 'CSE',
+    marks: 70,
+    city: 'Unknown'
+  }
+]
+student> db.students.aggregate([
+...   {
+...     $group: {
+...       _id: null,
+...       averageMarks: { $avg: "$marks" }
+...     }
+...   }
+... ])
+...
+[ { _id: null, averageMarks: 82.5 } ]
+student> db.students.aggregate([
+...   {
+...     $group: {
+...       _id: "$dept",
+...       totalMarks: { $sum: "$marks" }
+...     }
+...   }
+... ])
+...
+[
+  { _id: 'ISE', totalMarks: 92 },
+  { _id: 'CSE', totalMarks: 160 },
+  { _id: 'ECE', totalMarks: 78 }
+]
+student> db.students.aggregate([
+...   {
+...     $group: {
+...       _id: "$dept",
+...       maxMarks: { $max: "$marks" }
+...     }
+...   }
+... ])
+...
+[
+  { _id: 'ECE', maxMarks: 78 },
+  { _id: 'CSE', maxMarks: 90 },
+  { _id: 'ISE', maxMarks: 92 }
+]
+student> db.students.aggregate([
+...   {
+...     $group: {
+...       _id: "$dept",
+...       maxMarks: { $max: "$marks" }
+...     }
+...   }
+... ])
+...
