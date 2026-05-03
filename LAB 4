@@ -1,0 +1,85 @@
+bmscecse@bmscecse-HP-Elite-Tower-800-G9-Desktop-PC:~$ cqlsh
+Connected to Test Cluster at 127.0.0.1:9042
+[cqlsh 6.1.0 | Cassandra 4.1.4 | CQL spec 3.4.6 | Native protocol v5]
+Use HELP for help.
+cqlsh> drop keyspace library
+   ...
+cqlsh> drop keyspace library;
+cqlsh> CREATE KEYSPACE Library
+   ... WITH replication = {
+   ...    'class': 'SimpleStrategy',
+   ...    'replication_factor': 1
+   ... };
+cqlsh> USE Library;
+cqlsh:library> CREATE TABLE Library_Info (
+           ...     Stud_Id INT,
+           ...     Book_Id INT,
+           ...     Stud_Name TEXT,
+           ...     Book_Name TEXT,
+           ...     Date_of_issue DATE,
+           ...     PRIMARY KEY (Stud_Id, Book_Id)
+           ... );
+cqlsh:library> CREATE TABLE Book_Counter (
+           ...     Stud_Id INT,
+           ...     Book_Id INT,
+           ...     Counter_value COUNTER,
+           ...     PRIMARY KEY (Stud_Id, Book_Id)
+           ... );
+cqlsh:library> BEGIN BATCH
+           ...
+           ... INSERT INTO Library_Info (Stud_Id, Book_Id, Stud_Name, Book_Name, Date_of_issue)
+           ... VALUES (111, 1, 'Anu', 'DBMS', '2026-02-20');
+           ...
+           ... INSERT INTO Library_Info (Stud_Id, Book_Id, Stud_Name, Book_Name, Date_of_issue)
+           ... VALUES (112, 2, 'Ravi', 'BDA', '2026-02-21');
+           ...
+           ... APPLY BATCH;
+cqlsh:library> UPDATE Book_Counter
+           ... SET Counter_value = Counter_value + 1
+           ... WHERE Stud_Id = 112 AND Book_Id = 2;
+cqlsh:library> UPDATE Book_Counter
+           ... SET Counter_value = Counter_value + 1
+           ... WHERE Stud_Id = 112 AND Book_Id = 2;
+cqlsh:library> SELECT * FROM Library_Info;
+
+ stud_id | book_id | book_name | date_of_issue | stud_name
+---------+---------+-----------+---------------+-----------
+     111 |       1 |      DBMS |    2026-02-20 |       Anu
+     112 |       2 |       BDA |    2026-02-21 |      Ravi
+
+(2 rows)
+cqlsh:library> SELECT * FROM Book_Counter;
+
+ stud_id | book_id | counter_value
+---------+---------+---------------
+     112 |       2 |             2
+
+(1 rows)
+cqlsh:library> SELECT * FROM Book_Counter
+           ... WHERE Stud_Id = 112 AND Book_Id = 2;
+
+ stud_id | book_id | counter_value
+---------+---------+---------------
+     112 |       2 |             2
+
+(1 rows)
+
+cqlsh:library> exit;
+bmscecse@bmscecse-HP-Elite-Tower-800-G9-Desktop-PC:~$ cqlsh -e "COPY Library.Library_Info TO '/home/bmscecse/library_info.csv' WITH HEADER = TRUE;"
+Using 16 child processes
+
+Starting copy of library.library_info with columns [stud_id, book_id, book_name, date_of_issue, stud_name].
+Processed: 2 rows; Rate:      16 rows/s; Avg. rate:      16 rows/s
+2 rows exported to 1 files in 0.137 seconds.
+bmscecse@bmscecse-HP-Elite-Tower-800-G9-Desktop-PC:~$ ls /home/bmscecse/
+117        eclipse-workspace  Pictures  spark-3.0.3-bin-hadoop2.7.tgz
+Desktop    hitesh             Public    Templates
+Documents  library_info.csv   r.sh      Videos
+Downloads  Music              snap
+
+bmscecse@bmscecse-HP-Elite-Tower-800-G9-Desktop-PC:~$ cqlsh -e "COPY Library.Library_Info FROM 'library_info.csv' WITH HEADER = TRUE;"
+Using 16 child processes
+
+Starting copy of library.library_info with columns [stud_id, book_id, book_name, date_of_issue, stud_name].
+Processed: 2 rows; Rate:       4 rows/s; Avg. rate:       5 rows/s
+2 rows imported from 1 files in 0.366 seconds (0 skipped).
